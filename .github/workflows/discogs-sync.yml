@@ -1,0 +1,29 @@
+name: Discogs → Shopify Sync
+on:
+  schedule:
+    - cron: '0 * * * *'  # hourly
+  workflow_dispatch: {}
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm i node-fetch dotenv
+      - name: Run sync
+        run: |
+          export SHOPIFY_LOCATION_ID_GID="gid://shopify/Location/${{ secrets.SHOPIFY_LOCATION_ID }}"
+          SHOPIFY_STORE_DOMAIN=${{ secrets.SHOPIFY_STORE_DOMAIN }} \
+          SHOPIFY_ADMIN_TOKEN=${{ secrets.SHOPIFY_ADMIN_TOKEN }} \
+          SHOPIFY_API_VERSION='2025-01' \
+          SHOPIFY_LOCATION_ID=$SHOPIFY_LOCATION_ID_GID \
+          DISCOGS_USERNAME=${{ secrets.DISCOGS_USERNAME }} \
+          DISCOGS_TOKEN=${{ secrets.DISCOGS_TOKEN }} \
+          SYNC_FOLDERS='0' \
+          SYNC_PAGE_SIZE='50' \
+          DEFAULT_PRODUCT_STATUS='active' \
+          COLLECTION_HANDLE='vinyl' \
+          node sync.js
