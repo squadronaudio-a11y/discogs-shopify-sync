@@ -165,10 +165,13 @@ async function ensureProductFromDiscogsItem(item) {
 }
 
 async function setInventory(inventoryItemId, quantity) {
-  const payload = { inventory_item_id: inventoryItemId, location_id: LOCATION_ID.split('/').pop(), available: quantity };
+  const payload = {
+    inventory_item_id: inventoryItemId,
+    location_id: Number(LOCATION_ID), // pass the numeric ID directly
+    available: quantity
+  };
   await shopifyRest('/inventory_levels/set.json', 'POST', payload);
 }
-
 async function upsertProductMetafields(productId, kv) {
   const existing = await shopifyRest(`/products/${productId}/metafields.json`);
   const index = new Map(existing.metafields.map(m=> [`${m.namespace}.${m.key}`, m]));
